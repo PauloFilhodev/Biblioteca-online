@@ -1,2 +1,2 @@
 # Biblioteca online
-Sistema de biblioteca online para fins de estudo com banco de dados.
+Sistema de biblioteca on-line com base para fins de estudo.
