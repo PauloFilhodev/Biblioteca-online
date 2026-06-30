@@ -1,0 +1,41 @@
+CREATE SCHEMA IF NOT EXISTS biblioteca;
+
+CREATE TABLE IF NOT EXISTS usuarios
+(
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    telefone VARCHAR(11) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    senha_hash VARCHAR(255) NOT NULL,
+    tipo ENUM('cliente', 'bibliotecario') NOT NULL,
+    created_ad DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS livros
+(
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    titulo VARCHAR(255) NOT NULL,
+    autor INT UNSIGNED NOT NULL,
+    ano_lancamento YEAR NOT NULL,
+    valor_emprestimo DECIMAL(10, 2) NOT NULL,
+    quantidade INT UNSIGNED NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+)
+
+CREATE TABLE IF NOT EXISTS emprestimos
+(
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT UNSIGNED NOT NULL,
+    livro_id INT UNSIGNED NOT NULL,
+    valor_pago DECIMAL(10, 2) NOT NULL,
+    data_emprestimo DATETIME NOT NULL,
+    data_prevista DATETIME NOT NULL,
+    data_devolucao DATETIME NULL,
+    status ENUM('alugado', 'atrasado', 'devolvido') NOT NULL,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios (id),
+    FOREIGN KEY (livro_id) REFERENCES livros (id),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+)
