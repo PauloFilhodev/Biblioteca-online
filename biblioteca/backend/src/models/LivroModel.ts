@@ -1,14 +1,46 @@
 import pool from "../config/database";
-
+import { RowDataPacket, ResultSetHeader } from "mysql2";
+import { Livro } from "../interfaces/Livro";
+// Conversa diretamente com o MySQL
 export class LivroModel {
+
     static async buscarLivros()
     {
-        const [rows] = await pool.query('SELECT * FROM livros;');
+        const [ rows ] = await pool.query('SELECT * FROM livros;');
         return rows;
     }
-
-    static async cadastrarLivros()
+    // RowDataPacket é necessário para o Ts entender que o retorno é um array.
+    static async buscarLivro(id: number) 
     {
+        const [ rows ] = await pool.query<RowDataPacket[]>('SELECT * FROM livros WHERE id = ?', 
+            [id]);
         
+        return rows[0];
+    }
+    // O tipo de retorno do INSERT é um ResultSetHeader que tem as propriedades de affectedRows e mais.
+    static async cadastrarLivro(livro: Livro): Promise<ResultSetHeader>
+    {
+        const [result] = await pool.query<ResultSetHeader>('INSERT INTO livros (titulo, autor, ano_lancamento, valor_emprestimo, quantidade) VALUES (?, ?, ?, ?, ?)', 
+            [livro.titulo, 
+            livro.autor, 
+            livro.ano_lancamento, 
+            livro.valor_emprestimo, 
+            livro.quantidade]);
+
+        return result;
+    }
+
+    static async deletarLivro(id: number): Promise<ResultSetHeader>
+    {
+        const [ result ] = await pool.query<ResultSetHeader>('DELETE FROM livros WHERE id = ?', [id]);
+
+        return result;
+    }
+
+    static async editarLivro(id: number, newLivro: Livro): Promise<ResultSetHeader>
+    {
+        const [ result ] = await pool.query<ResultSetHeader>('UPDATE livros SET titulo = ?, autor = ?, ano_lancamento = ?, valor_emprestimo = ?, quantidade = ? WHERE id = ?', [newLivro.titulo, newLivro.autor, newLivro.ano_lancamento, newLivro.valor_emprestimo, newLivro.quantidade, id]);
+
+        return result;
     }
 }

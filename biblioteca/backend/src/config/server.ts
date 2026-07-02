@@ -2,17 +2,16 @@ import "dotenv/config";
 import express from "express";
 const app = express();
 
-// // 1. Middlewares globais
-// app.use(express.json());
+app.use(express.json());
 
 app.get('/', (req, res) => {
     res.send('Servidor principal está online! Acesse /livros/lista para ver os livros.');
 });
 
-// Importando rotas
+// Import rotas ---------------------------------------------
 import appLivros from '../routes/livro.routes'; 
 
-// Direcionando rotas
+// Direct rotas ---------------------------------------------
 app.use('/livros', appLivros);
 
 const PORT = process.env.PORT || 3000;
