@@ -1,6 +1,4 @@
-import { setgroups } from "node:process";
 import { Livro } from "../interfaces/Livro";
-import { LivroModel } from "../models/LivroModel";
 import { LivroService } from "../services/LivroService";
 import { Request, Response } from "express";
 // Controller é a camada que recebe a requisição, chama o serviço e retorna uma resposta.
