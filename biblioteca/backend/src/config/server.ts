@@ -1,8 +1,10 @@
 import "dotenv/config";
 import express from "express";
+import cookieParser from "cookie-parser";
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.get('/', (req, res) => {
     res.send('Servidor principal está online! Acesse /livros/lista para ver os livros.');
@@ -11,10 +13,12 @@ app.get('/', (req, res) => {
 // Import rotas ---------------------------------------------
 import appLivros from '../routes/livro.routes'; 
 import appUsuarios from '../routes/usuarios.routes';
+import appAuth from '../routes/auth.routes';
 
 // Direct rotas ---------------------------------------------
 app.use('/livros', appLivros);
 app.use('/usuarios', appUsuarios);
+app.use('/login', appAuth);
 
 const PORT = process.env.PORT || 3000;
 
