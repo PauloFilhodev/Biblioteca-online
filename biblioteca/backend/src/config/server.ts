@@ -18,7 +18,7 @@ import appAuth from '../routes/auth.routes';
 // Direct rotas ---------------------------------------------
 app.use('/livros', appLivros);
 app.use('/usuarios', appUsuarios);
-app.use('/login', appAuth);
+app.use('/auth', appAuth);
 
 const PORT = process.env.PORT || 3000;
 

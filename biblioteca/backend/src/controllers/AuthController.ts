@@ -34,4 +34,11 @@ export class AuthController {
             message: "Login realizado com sucesso."
         });
     }
+
+    static async logout(req: Request, res: Response)
+    {
+        res.clearCookie("token");
+
+        return res.status(200).send();
+    }
 }

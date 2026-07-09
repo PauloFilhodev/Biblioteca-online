@@ -22,7 +22,7 @@ export class AuthMiddleware {
             });
         }
 
-        req.usuario = payload;
+        req.usuario = payload; // ../types/express.d.ts extende do Request para adicionar a modificação do usuário 
 
         next()
     }
