@@ -4,15 +4,15 @@ import { AuthMiddleware } from "../middlewares/AuthMiddleware";
 const router = Router();
 
 router.post('/', UsuarioController.cadastrarUsuario);
-router.get('/usuario/:id',
+router.get('/:id',
     AuthMiddleware.autenticar,
     UsuarioController.buscarUsuario
     );
-router.delete('/usuario/:id',
+router.delete('/:id',
     AuthMiddleware.autenticar,
     UsuarioController.deletarUsuario
     );
-router.put('/usuario/:id',
+router.put('/:id',
     AuthMiddleware.autenticar,
     UsuarioController.editarUsuario
 );

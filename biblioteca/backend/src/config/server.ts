@@ -14,11 +14,13 @@ app.get('/', (req, res) => {
 import appLivros from '../routes/livro.routes'; 
 import appUsuarios from '../routes/usuarios.routes';
 import appAuth from '../routes/auth.routes';
+import appEmprestimos from '../routes/emprestimos.routes';
 
 // Direct rotas ---------------------------------------------
 app.use('/livros', appLivros);
 app.use('/usuarios', appUsuarios);
 app.use('/auth', appAuth);
+app.use('/emprestimos', appEmprestimos);
 
 const PORT = process.env.PORT || 3000;
 
