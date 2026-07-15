@@ -2,6 +2,9 @@ import { CadastroEmprestimo } from "../interfaces/CadastroEmprestimo";
 import { EmprestimoModel } from "../models/EmprestimoModel";
 import { UsuarioModel } from "../models/UsuarioModel";
 import { LivroModel } from "../models/LivroModel";
+import { ResultSetHeader } from "mysql2";
+import { ServiceResult } from "../interfaces/ServiceResult";
+import { EmprestimoErro } from "../interfaces/EmprestimoErro";
 export type EstadoEmprestimo = "Alugado" | "Devolvido" | "Atrasado";
 
 
@@ -65,9 +68,46 @@ export class EmprestimoService {
 
         return result;
     }
-    static async devolverLivro() {
 
+    static async devolverLivro(id: number): Promise<ServiceResult<ResultSetHeader>>
+    {
+        const emprestimoExistente = await EmprestimoModel.listarEmprestimo(id);
+
+        if (emprestimoExistente == null)
+        {
+            return { 
+                sucesso: false,
+                erro: EmprestimoErro.NAO_EXISTE
+            }
+        }
+
+        if (emprestimoExistente.status == "devolvido")
+        {
+            return {
+                sucesso: false,
+                erro: EmprestimoErro.JA_DEVOLVIDO
+            }
+        }
+
+        const result = await EmprestimoModel.devolverLivro(id);
+
+        if (result.affectedRows == 0)
+        {
+            return {
+                sucesso: false,
+                erro: EmprestimoErro.ERRO_BANCO
+            }
+        }
+
+        await LivroModel.aumentarQuantidade(emprestimoExistente.livro_id);
+
+        return {
+            sucesso: true,
+            dados: result
+        };
     }
+
+
     static async emprestimosUsuario() {
 
     }

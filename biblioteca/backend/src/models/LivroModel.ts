@@ -51,4 +51,11 @@ export class LivroModel {
         return result;
     }
 
+    static async aumentarQuantidade(id: number): Promise<ResultSetHeader>
+    {
+        const [ result ] = await pool.query<ResultSetHeader>('UPDATE livros SET quantidade = quantidade + 1 WHERE id = ?', [id]);
+
+        return result;
+    }
+
 }

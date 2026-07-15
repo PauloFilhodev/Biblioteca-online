@@ -40,4 +40,13 @@ export class EmprestimoModel {
         return result;
     }
 
+    static async devolverLivro(id: number): Promise<ResultSetHeader>
+    {
+        const [ result ] = await pool.query<ResultSetHeader>('UPDATE emprestimos SET status = ?, data_devolucao = NOW() WHERE id = ?', ["devolvido", id]);
+
+        return result;
+    }
+
+    
+
 }

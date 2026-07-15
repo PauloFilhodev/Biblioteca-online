@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { EmprestimoService } from '../services/EmprestimoService';
 import { CadastroEmprestimo } from '../interfaces/CadastroEmprestimo';
+import { EmprestimoErro } from '../interfaces/EmprestimoErro';
 
 
 export class EmprestimosController {
@@ -68,12 +69,47 @@ export class EmprestimosController {
 
     static async devolverLivro(req: Request, res: Response)
     {
+        const idEmprestimo = Number(req.params.id);
 
+        if (!Number.isInteger(idEmprestimo) || idEmprestimo <= 0)
+        {
+            return res.status(400).json({
+                message: "Id inválido"
+            })
+        }
+
+        const result = await EmprestimoService.devolverLivro(idEmprestimo);
+        
+        if (!result.sucesso)
+        {
+            switch (result.erro) {
+                case EmprestimoErro.NAO_EXISTE:
+                    return res.status(404).json({
+                        message: "Empréstimo não encontrado."
+                    });
+                case EmprestimoErro.JA_DEVOLVIDO:
+                    return res.status(409).json({
+                        message: "Empréstimo já devolvido."
+                    })
+                case EmprestimoErro.ERRO_BANCO:
+                    return res.status(500).json({
+                        message: "Erro ao atualizar empréstimo."
+                    });
+                default:
+                    return res.status(500).json({
+                        message: "Erro interno."
+                    })
+            }
+        }
+
+        return res.status(200).json({
+            message: "Livro devolvido com sucesso."
+        });
     }
 
     static async emprestimosUsuario(req: Request, res: Response)
     {
-
+        
     }
 
     static async emprestimosLivro(req: Request, res: Response)
