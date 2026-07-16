@@ -1,5 +1,5 @@
 import pool from "../config/database";
-import { RowDataPacket, ResultSetHeader } from "mysql2";
+import { RowDataPacket, ResultSetHeader, Pool, PoolConnection } from "mysql2/promise";
 import { Livro } from "../interfaces/Livro";
 // Conversa diretamente com o MySQL
 export class LivroModel {
@@ -51,9 +51,12 @@ export class LivroModel {
         return result;
     }
 
-    static async aumentarQuantidade(id: number): Promise<ResultSetHeader>
+    static async aumentarQuantidade(
+        db: Pool | PoolConnection,
+        id: number
+    ): Promise<ResultSetHeader>
     {
-        const [ result ] = await pool.query<ResultSetHeader>('UPDATE livros SET quantidade = quantidade + 1 WHERE id = ?', [id]);
+        const [ result ] = await db.query<ResultSetHeader>('UPDATE livros SET quantidade = quantidade + 1 WHERE id = ?', [id]);
 
         return result;
     }

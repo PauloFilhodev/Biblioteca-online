@@ -109,11 +109,37 @@ export class EmprestimosController {
 
     static async emprestimosUsuario(req: Request, res: Response)
     {
-        
+        const usuarioId = Number(req.params.id);
+
+        if (!Number.isInteger(usuarioId) || usuarioId <= 0)
+        {
+            return res.status(400).json({
+                message: "Id inválido."
+            })
+        }
+
+        const emprestimos = await EmprestimoService.emprestimosUsuario(usuarioId);
+
+        return res.status(200).json({
+            dados: emprestimos
+        })
     }
 
     static async emprestimosLivro(req: Request, res: Response)
     {
+        const livroId = Number(req.params.id);
 
+        if (!Number.isInteger(livroId) || livroId <= 0)
+        {
+            return res.status(400).json({
+                message: "Id inválido."
+            })
+        }
+
+        const emprestimos = await EmprestimoService.emprestimosLivro(livroId);
+
+        return res.status(200).json({
+            dados: emprestimos
+        })
     }
 }

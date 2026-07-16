@@ -2,9 +2,10 @@ import { CadastroEmprestimo } from "../interfaces/CadastroEmprestimo";
 import { EmprestimoModel } from "../models/EmprestimoModel";
 import { UsuarioModel } from "../models/UsuarioModel";
 import { LivroModel } from "../models/LivroModel";
-import { ResultSetHeader } from "mysql2";
+import { ResultSetHeader, RowDataPacket } from "mysql2";
 import { ServiceResult } from "../interfaces/ServiceResult";
 import { EmprestimoErro } from "../interfaces/EmprestimoErro";
+import pool from "../config/database";
 export type EstadoEmprestimo = "Alugado" | "Devolvido" | "Atrasado";
 
 
@@ -27,7 +28,7 @@ export class EmprestimoService {
         return emprestimoRetornado;
     }
 
-    static async cadastrarEmprestimo(emprestimo: CadastroEmprestimo) {
+    static async cadastrarEmprestimo(emprestimo: CadastroEmprestimo): Promise<ServiceResult<ResultSetHeader>> {
         const usuarioExistente = await UsuarioModel.buscarUsuario(emprestimo.usuario_id);
         console.log("Usuário:", usuarioExistente);
 
@@ -36,82 +37,129 @@ export class EmprestimoService {
 
         if (usuarioExistente == null || livroExistente == null) {
             console.log("Entrou no IF 1");
-            return null;
+            return {
+                sucesso: false,
+                erro: EmprestimoErro.NAO_EXISTE
+            };
         }
 
         if (livroExistente.quantidade <= 0) {
             console.log("Entrou no IF 2");
-            return null;
+            return {
+                sucesso: false,
+                erro: EmprestimoErro.SEM_ESTOQUE
+            };
         }
 
-        const emprestimoExistente = await EmprestimoModel.buscarEmprestimoAtivo(
-            emprestimo.usuario_id,
-            emprestimo.livro_id
-        );
+        const connection = await pool.getConnection();
+        
+        try {
+            await connection.beginTransaction();
 
-        console.log("Emprestimo existente:", emprestimoExistente);
+            const emprestimoExistente = await EmprestimoModel.buscarEmprestimoAtivo(
+                emprestimo.usuario_id,
+                emprestimo.livro_id
+            );
 
-        if (emprestimoExistente != null) {
-            console.log("Entrou no IF 3");
-            return null;
+            console.log("Emprestimo existente:", emprestimoExistente);
+
+            if (emprestimoExistente != null) {
+                console.log("Entrou no IF 3");
+                return {
+                    sucesso: false,
+                    erro: EmprestimoErro.NAO_EXISTE
+                };
+            }
+
+            const result = await EmprestimoModel.cadastrarEmprestimo(connection, emprestimo);
+            console.log(result);
+
+            if (result.affectedRows == 0) {
+                console.log("Entrou no IF 4");
+                return {
+                    sucesso: false,
+                    erro: EmprestimoErro.ERRO_BANCO
+                };
+            }
+
+            await LivroModel.diminuirQuantidade(emprestimo.livro_id);
+
+            await connection.commit();
+
+            return {
+                sucesso: true,
+                dados: result
+            };
+        } catch (error) {
+            await connection.rollback();
+            return {
+                sucesso: false,
+                erro: EmprestimoErro.ERRO_BANCO
+            }
+        } finally {
+            connection.release();
         }
-
-        const result = await EmprestimoModel.cadastrarEmprestimo(emprestimo);
-        console.log(result);
-
-        if (result.affectedRows == 0) {
-            console.log("Entrou no IF 4");
-            return null;
-        }
-
-        await LivroModel.diminuirQuantidade(emprestimo.livro_id);
-
-        return result;
     }
 
-    static async devolverLivro(id: number): Promise<ServiceResult<ResultSetHeader>>
-    {
+    static async devolverLivro(id: number): Promise<ServiceResult<ResultSetHeader>> {
+
         const emprestimoExistente = await EmprestimoModel.listarEmprestimo(id);
 
-        if (emprestimoExistente == null)
-        {
-            return { 
+        if (emprestimoExistente == null) {
+            return {
                 sucesso: false,
                 erro: EmprestimoErro.NAO_EXISTE
             }
         }
 
-        if (emprestimoExistente.status == "devolvido")
-        {
+        if (emprestimoExistente.status == "devolvido") {
             return {
                 sucesso: false,
                 erro: EmprestimoErro.JA_DEVOLVIDO
             }
         }
 
-        const result = await EmprestimoModel.devolverLivro(id);
+        const connection = await pool.getConnection();
+        
+        try {
+            await connection.beginTransaction();
 
-        if (result.affectedRows == 0)
-        {
+            const result = await EmprestimoModel.devolverLivro(connection, id);
+
+            if (result.affectedRows == 0) {
+                return {
+                    sucesso: false,
+                    erro: EmprestimoErro.ERRO_BANCO
+                }
+            }
+
+            await LivroModel.aumentarQuantidade(connection, emprestimoExistente.livro_id);
+
+            await connection.commit();
+
+            return {
+                sucesso: true,
+                dados: result
+            };
+        } catch (error) {
+            await connection.rollback();
+
             return {
                 sucesso: false,
                 erro: EmprestimoErro.ERRO_BANCO
             }
+        } finally {
+            connection.release();
         }
-
-        await LivroModel.aumentarQuantidade(emprestimoExistente.livro_id);
-
-        return {
-            sucesso: true,
-            dados: result
-        };
     }
 
-
-    static async emprestimosUsuario() {
-
+    static async emprestimosUsuario(id: number)
+    {
+        return await EmprestimoModel.emprestimosUsuario(id);;
     }
-    static async emprestimosLivro() {
 
+    static async emprestimosLivro(id: number) 
+    {
+        return await EmprestimoModel.emprestimosLivro(id);
     }
 }

@@ -4,8 +4,10 @@ const router = Router();
 
 router.get('/', EmprestimosController.listarEmprestimos);
 router.get('/:id', EmprestimosController.listarEmprestimo);
+router.get('/usuario/:id', EmprestimosController.emprestimosUsuario);
+router.get('/livro/:id', EmprestimosController.emprestimosLivro);
 router.post('/', EmprestimosController.cadastrarEmprestimo);
-router.put('/:id/devolver', EmprestimosController.devolverLivro);
+router.post('/:id/devolver', EmprestimosController.devolverLivro);
 
 
 export default router;
