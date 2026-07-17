@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { UsuarioService } from "../services/UsuarioService"
 import { CadastrarUsuario } from "../interfaces/CadastroUsuario";
 import { Usuario } from "../interfaces/Usuario";
+import { UsuarioErro } from "../interfaces/UsuarioErro";
 
 
 export class UsuarioController {
@@ -33,16 +34,27 @@ export class UsuarioController {
 
         const result = await UsuarioService.cadastrarUsuario(usuario);
 
-        if (result.affectedRows === 0)
+        if (!result.sucesso)
         {
-            return res.status(500).json({
-                message: "Erro ao cadastrar usuario"
-            })
+            switch (result.erro) {
+                case UsuarioErro.ERRO_BANCO:
+                    return res.status(500).json({
+                        message: "Ocorreu um erro no servidor."
+                    })
+                case UsuarioErro.JA_EXISTE:
+                    return res.status(409).json({
+                        message: "Este e-mail já está cadastrado."
+                    })
+                default:
+                    return res.status(500).json({
+                        message: "Erro interno."
+                    })
+            }
         }
 
         return res.status(201).json({
             message: "Usuario criado",
-            id: result.insertId
+            id: result.dados?.insertId
         })
     }
 
@@ -61,12 +73,12 @@ export class UsuarioController {
         if (result.affectedRows === 0)
         {
             return res.status(500).json({
-                message: "Erro ao deletar usuário"
+                message: "Usuário não encontrado ou erro ao deletar."
             })
         }
 
         return res.status(200).json({
-            message: "Usuario deletado com sucesso"
+            message: "Usuario deletado com sucesso."
         });
     }
 

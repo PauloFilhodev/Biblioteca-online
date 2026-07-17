@@ -54,15 +54,31 @@ export class EmprestimosController {
         }
 
         const result = await EmprestimoService.cadastrarEmprestimo(cadastroEmprestimo);
+        console.log("Resultado: ", result);    
 
-        if (result == null)
+        if (!result.sucesso)
         {
-            return res.status(500).json({
-                message: "Ocorreu um erro no servidor"
-            })
+            switch (result.erro) {
+                case EmprestimoErro.NAO_EXISTE:
+                    return res.status(404).json({
+                        message: "Usuário ou livro não existentes."
+                    });
+                case EmprestimoErro.SEM_ESTOQUE:
+                    return res.status(409).json({
+                        message: "Não há exemplares disponíveis para este livro."
+                    })
+                case EmprestimoErro.ERRO_BANCO:
+                    return res.status(500).json({
+                        message: "Ocorreu um erro no servidor."
+                    })
+                default:
+                    return res.send(500).json({
+                        message: "Erro interno."
+                    })
+            }
         }
 
-        return res.status(200).json({
+        return res.status(201).json({
             message: "Emprestimo criado com sucesso"
         })
     }

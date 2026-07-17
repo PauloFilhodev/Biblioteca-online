@@ -5,17 +5,17 @@ import { Router } from "express";
 const router = Router(); // Mini app do express
  
 // Separação e direcionamento de rotas para o Controller (próxima camada) receber a requisição e retornar uma resposta
-router.get('/lista', LivroController.buscarLivros);
-router.get('/livro/:id', LivroController.buscarLivro);
+router.get('/', LivroController.buscarLivros);
+router.get('/:id', LivroController.buscarLivro);
 router.post('/', 
     AuthMiddleware.autenticar, 
     LivroController.cadastrarLivro
 );
-router.delete('/livro/:id',
+router.delete('/:id',
     AuthMiddleware.autenticar,
     LivroController.deletarLivro
     );
-router.put('/livro/:id', 
+router.put('/:id', 
     AuthMiddleware.autenticar,
     LivroController.editarLivro
 );

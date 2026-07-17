@@ -30,13 +30,9 @@ export class EmprestimoService {
 
     static async cadastrarEmprestimo(emprestimo: CadastroEmprestimo): Promise<ServiceResult<ResultSetHeader>> {
         const usuarioExistente = await UsuarioModel.buscarUsuario(emprestimo.usuario_id);
-        console.log("Usuário:", usuarioExistente);
-
         const livroExistente = await LivroModel.buscarLivro(emprestimo.livro_id);
-        console.log("Livro:", livroExistente);
 
         if (usuarioExistente == null || livroExistente == null) {
-            console.log("Entrou no IF 1");
             return {
                 sucesso: false,
                 erro: EmprestimoErro.NAO_EXISTE
@@ -44,7 +40,6 @@ export class EmprestimoService {
         }
 
         if (livroExistente.quantidade <= 0) {
-            console.log("Entrou no IF 2");
             return {
                 sucesso: false,
                 erro: EmprestimoErro.SEM_ESTOQUE
@@ -57,6 +52,7 @@ export class EmprestimoService {
             await connection.beginTransaction();
 
             const emprestimoExistente = await EmprestimoModel.buscarEmprestimoAtivo(
+                connection,
                 emprestimo.usuario_id,
                 emprestimo.livro_id
             );
@@ -64,7 +60,6 @@ export class EmprestimoService {
             console.log("Emprestimo existente:", emprestimoExistente);
 
             if (emprestimoExistente != null) {
-                console.log("Entrou no IF 3");
                 return {
                     sucesso: false,
                     erro: EmprestimoErro.NAO_EXISTE
@@ -72,17 +67,19 @@ export class EmprestimoService {
             }
 
             const result = await EmprestimoModel.cadastrarEmprestimo(connection, emprestimo);
-            console.log(result);
 
             if (result.affectedRows == 0) {
-                console.log("Entrou no IF 4");
                 return {
                     sucesso: false,
                     erro: EmprestimoErro.ERRO_BANCO
                 };
             }
 
-            await LivroModel.diminuirQuantidade(emprestimo.livro_id);
+            await LivroModel.diminuirQuantidade
+            (
+                connection,
+                emprestimo.livro_id
+            );
 
             await connection.commit();
 

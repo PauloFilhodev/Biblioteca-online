@@ -39,14 +39,17 @@ export class LivroModel {
 
     static async editarLivro(id: number, newLivro: Livro): Promise<ResultSetHeader>
     {
-        const [ result ] = await pool.query<ResultSetHeader>('UPDATE livros SET titulo = ?, autor = ?, ano_lancamento = ?, valor_emprestimo = ?, quantidade = ? WHERE id = ?', [newLivro.titulo, newLivro.autor, newLivro.ano_lancamento, newLivro.valor_emprestimo, newLivro.quantidade, id]);
+        const [ result ] = await pool.query<ResultSetHeader>('UPDATE livros SET titulo = ?, autor = ?, ano_lancamento = ?, valor_emprestimo = ?, quantidade = ?, updated_at = NOW() WHERE id = ?', [newLivro.titulo, newLivro.autor, newLivro.ano_lancamento, newLivro.valor_emprestimo, newLivro.quantidade, id]);
 
         return result;
     }
 
-    static async diminuirQuantidade(id: number): Promise<ResultSetHeader>
+    static async diminuirQuantidade(
+        db: Pool | PoolConnection,
+        id: number
+    ): Promise<ResultSetHeader>
     {
-        const [ result ] = await pool.query<ResultSetHeader>('UPDATE livros SET quantidade = quantidade - 1 WHERE id = ? ', [id]);
+        const [ result ] = await db.query<ResultSetHeader>('UPDATE livros SET quantidade = quantidade - 1 WHERE id = ? ', [id]);
 
         return result;
     }

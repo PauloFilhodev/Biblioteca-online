@@ -8,7 +8,6 @@ export class AuthController {
         const login: LoginUsuario = req.body;
 
         if (login.email == null || login.senha == null) {
-            console.log(login)
             return res.status(400).json({
                 message: "Dados inválidos"
             })

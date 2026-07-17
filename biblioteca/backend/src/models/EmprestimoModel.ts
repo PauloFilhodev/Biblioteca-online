@@ -27,9 +27,13 @@ export class EmprestimoModel {
         return rows[0];
     }
 
-    static async buscarEmprestimoAtivo(usuario_id: number, livro_id: number): Promise<RowDataPacket>
+    static async buscarEmprestimoAtivo(
+        db: Pool | PoolConnection,
+        usuario_id: number, 
+        livro_id: number
+    ): Promise<RowDataPacket>
     {
-        const [ rows ] = await pool.query<RowDataPacket[]>('SELECT * FROM emprestimos WHERE usuario_id = ? AND livro_id = ? AND status = ?', [usuario_id, livro_id, "alugado"]);
+        const [ rows ] = await db.query<RowDataPacket[]>('SELECT * FROM emprestimos WHERE usuario_id = ? AND livro_id = ? AND status = ?', [usuario_id, livro_id, "alugado"]);
 
         return rows[0];
     }
