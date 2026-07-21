@@ -1,13 +1,23 @@
 import pool from "../config/database";
 import { RowDataPacket, ResultSetHeader, Pool, PoolConnection } from "mysql2/promise";
 import { Livro } from "../interfaces/Livro";
+import { ListaPaginada } from "../interfaces/ListaPaginada";
 // Conversa diretamente com o MySQL
 export class LivroModel {
 
-    static async buscarLivros()
+    static async buscarLivros(pagina: number, offset: number): Promise<Livro[]>
     {
-        const [ rows ] = await pool.query('SELECT * FROM livros;');
+        const [ rows ] = await pool.query<Livro[]>('SELECT * FROM livros LIMIT ? OFFSET ?', [pagina, offset]);
         return rows;
+    }
+
+    static async quantidadeLivros(): Promise<number>
+    {
+        const [rows] = await pool.query<RowDataPacket[]>(
+            "SELECT COUNT(*) AS total FROM livros"
+        );
+
+        return rows[0].total;
     }
     // RowDataPacket é necessário para o Ts entender que o retorno é um array.
     static async buscarLivro(id: number) 

@@ -1,11 +1,27 @@
+import { RowDataPacket } from "mysql2";
+import { ServiceResult } from "../interfaces/ServiceResult"
 import { Livro } from "../interfaces/Livro";
 import { LivroModel } from "../models/LivroModel"
+import { ListaPaginada } from "../interfaces/ListaPaginada";
 // Service é uma camada que conversa com o Model e aplica as regras de negócio
 export class LivroService {
     // Aplicação das regras de negócio
-    static async buscarLivros()
+    static async buscarLivros(pagina: number, limite: number): Promise<ListaPaginada<Livro>>
     {
-        return await LivroModel.buscarLivros();
+        const offset = (pagina - 1) * limite;
+        const livros = await LivroModel.buscarLivros(pagina, offset);
+
+        const total = await LivroModel.quantidadeLivros();
+
+        return {
+            dados: livros,
+            paginacao: {
+                pagina,
+                limite: limite,
+                total: total,
+                totalPaginas: Math.ceil(total / limite)
+            };
+        } 
     }
 
     static async buscarLivro(id: number) 

@@ -4,14 +4,19 @@ import { Request, Response } from "express";
 // Controller é a camada que recebe a requisição, chama o serviço e retorna uma resposta.
 export class LivroController {
 
-    static async buscarLivros(req: Request, res: Response)
-    {
-        const livrosRetornados = await LivroService.buscarLivros();
-        res.status(201).json(livrosRetornados);
+    static async buscarLivros(req: Request, res: Response) {
+        const pagina = Number(req.query.pagina) || 1;
+        const limite = Number(req.query.limite) || 10;
+
+        const result = await LivroService.buscarLivros(
+            pagina,
+            limite
+        );
+
+        return res.status(200).json(result);
     }
 
-    static async buscarLivro(req: Request, res: Response)
-    {
+    static async buscarLivro(req: Request, res: Response) {
         const livroId = Number(req.params.id);
 
         if (Number.isNaN(livroId)) {
@@ -22,8 +27,7 @@ export class LivroController {
 
         const livroRetornado = await LivroService.buscarLivro(livroId);
 
-        if (livroRetornado == null)
-        {
+        if (livroRetornado == null) {
             console.log("livro não existente")
             return res.status(404).json({
                 message: "Livro não encontrado ou não existente."
@@ -33,10 +37,9 @@ export class LivroController {
         return res.status(201).send(livroRetornado);
     }
 
-    static async cadastrarLivro(req: Request, res: Response) 
-    {
+    static async cadastrarLivro(req: Request, res: Response) {
         const livro: Livro = req.body;
-        
+
         if (livro.titulo == null || livro.ano_lancamento == null || livro.autor == null || livro.quantidade == null || livro.valor_emprestimo == null) {
             return res.status(400).json({
                 message: "Dados inválidos"
@@ -57,21 +60,18 @@ export class LivroController {
         })
     }
 
-    static async deletarLivro(req: Request, res: Response)
-    {
+    static async deletarLivro(req: Request, res: Response) {
         const livroId = Number(req.params.id);
 
-        if (livroId == null)
-        {
+        if (livroId == null) {
             return res.status(400).json({
                 message: "Id inválido"
             })
         }
 
         const service = await LivroService.deletarLivro(livroId);
-        
-        if (service.affectedRows === 0)
-        {
+
+        if (service.affectedRows === 0) {
             return res.status(500).json({
                 message: "Erro ao deletar livro"
             })
@@ -83,13 +83,11 @@ export class LivroController {
         })
     }
 
-    static async editarLivro(req: Request, res: Response)
-    {
+    static async editarLivro(req: Request, res: Response) {
         const livroId = Number(req.params.id);
         const livro: Livro = req.body;
 
-        if (livroId === null)
-        {
+        if (livroId === null) {
             return res.status(400).json({
                 message: "Id inválido"
             })
@@ -103,8 +101,7 @@ export class LivroController {
 
         const service = await LivroService.editarLivro(livroId, livro);
 
-        if (service.affectedRows === 0)
-        {
+        if (service.affectedRows === 0) {
             return res.status(500).json({
                 message: "Erro ao editar livro"
             })
