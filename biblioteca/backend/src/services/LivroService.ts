@@ -9,7 +9,7 @@ export class LivroService {
     static async buscarLivros(pagina: number, limite: number): Promise<ListaPaginada<Livro>>
     {
         const offset = (pagina - 1) * limite;
-        const livros = await LivroModel.buscarLivros(pagina, offset);
+        const livros = await LivroModel.buscarLivros(limite, offset);
 
         const total = await LivroModel.quantidadeLivros();
 
@@ -20,7 +20,7 @@ export class LivroService {
                 limite: limite,
                 total: total,
                 totalPaginas: Math.ceil(total / limite)
-            };
+            }
         } 
     }
 

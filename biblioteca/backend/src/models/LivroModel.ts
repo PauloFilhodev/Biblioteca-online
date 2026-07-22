@@ -5,9 +5,9 @@ import { ListaPaginada } from "../interfaces/ListaPaginada";
 // Conversa diretamente com o MySQL
 export class LivroModel {
 
-    static async buscarLivros(pagina: number, offset: number): Promise<Livro[]>
+    static async buscarLivros(limite: number, offset: number): Promise<Livro[]>
     {
-        const [ rows ] = await pool.query<Livro[]>('SELECT * FROM livros LIMIT ? OFFSET ?', [pagina, offset]);
+        const [ rows ] = await pool.query<Livro[]>('SELECT * FROM livros LIMIT ? OFFSET ?', [limite, offset]);
         return rows;
     }
 
