@@ -1,12 +1,39 @@
-import { ReactNode } from "react";
+"use client";
+import { Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
 
-interface InputProps extends React.InputHTMLAttributes<HTMLElement> {}
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+    showToggle?: boolean;
+}
 
-export default function Input (props: InputProps) {
+export default function Input({ showToggle, type, ...props }: InputProps) {
+    const [showPassword, setShowPassword] = useState(false);
+
+    const inputType =
+        showToggle && type === "password"
+            ? showPassword
+                ? "text"
+                : "password"
+            : type;
+
+
     return (
-        <input 
-        {...props}
-        type="text" 
-        className="bg-purple-100 w-full rounded-md px-3 py-1.5 text-base text-slate-900 outline-1 -outline-offset-1 outline-slate-300 placeholder:text-slate-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 focus:ring-2 focus:ring-indigo-500" />
+        <div className="relative">
+            <input
+                {...props}
+                type={inputType}
+                className="w-full rounded-md border px-3 py-2 pr-10"
+            />
+
+            {showToggle && type === "password" && (
+                <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 hover: cursor-pointer"
+                >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+            )}
+        </div>
     );
 }
