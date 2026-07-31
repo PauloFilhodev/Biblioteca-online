@@ -7,18 +7,37 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { LoginData, loginSchema } from "@/schemas/auth.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { login } from "@/service/auth.service";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 
 export default function LoginForm() {
+    const router = useRouter();
+
     const {
         register,
         handleSubmit,
+        setError,
         formState: { errors, isSubmitting }
     } = useForm<LoginData>({
         resolver: zodResolver(loginSchema)
     });
 
     const onSubmit = async (form: LoginData) => {
-        console.log(`Email: ${form.email} senha ${form.senha}`);
+        try {
+            await login(form);
+
+            router.replace('/dashboard');
+        } catch (error)
+        {
+            if (axios.isAxiosError(error))
+            {
+                console.log(error.response?.data.message);
+                setError("root", {
+                    message: error.response?.data.message
+                });
+            }
+        }
     }
 
 
@@ -53,6 +72,9 @@ export default function LoginForm() {
                     <span>{errors.senha.message}</span>
                 )}
 
+                {errors.root && (
+                    <span className="text-red-500">{errors.root.message}</span>
+                )}
                 <Button
                     type="submit"
                 >
