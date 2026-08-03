@@ -4,7 +4,7 @@ export const registerSchema = z.object({
     nome: z.string().min(2, "Nome muito curto"),
     email: z.email("Email inválido"),
     senha: z.string().min(6, "Mínimo de 6 caracteres"),
-    telefone: z.string().min(10, "Telefone inválido"),
+    telefone: z.string().min(10, "Telefone inválido").max(10, "Telefone inválido"),
 })
 
 export const loginSchema = z.object({

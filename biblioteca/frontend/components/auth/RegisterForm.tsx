@@ -8,6 +8,7 @@ import { RegisterData, registerSchema } from "@/schemas/auth.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { registerUser } from "@/service/auth.service";
+import { ApiError } from "@/types/api";
 
 
 export default function RegisterForm() {
@@ -25,13 +26,28 @@ export default function RegisterForm() {
         try {
             await registerUser(form);
             alert("Usuário registrado com sucesso!");
-        } catch (error)
-        {
-            if (axios.isAxiosError(error))
-            {
-                setError("root", {
-                    message: error.response?.data.message
-                })
+        } catch (error) {
+            if (axios.isAxiosError<ApiError>(error)) {
+                switch (error.response?.data.code) {
+                    case "EMAIL_CADASTRADO":
+                        setError("email", {
+                            message: error.response?.data.message
+                        })
+                        break;
+                    case "TELEFONE_CADASTRADO":
+                        setError("telefone", {
+                            message: error.response?.data.message
+                        })
+                        break;
+                    case "ERRO_BANCO":
+                        setError("root", {
+                            message: error.response?.data.message
+                        })
+                    default:
+                        setError("root", {
+                            message: error.response?.data.message
+                        })
+                }
             }
         }
     }
@@ -90,7 +106,7 @@ export default function RegisterForm() {
                 )}
 
                 {errors.root && (
-                    <span>{errors.root.message}</span>
+                    <span>{errors.root?.message}</span>
                 )}
 
                 <Button type="submit">
