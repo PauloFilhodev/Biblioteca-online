@@ -12,8 +12,8 @@ export class jwtUtil {
 
         return token;
     }
-    // Precisa retornar uma promise do tipo JwtPayload ou null
-    static async verificarToken(token: string): Promise<AuthTokenPayload | null>
+    
+    static async verificarToken(token: string): Promise<AuthTokenPayload | null> // Precisa retornar uma promise do tipo JwtPayload ou null
     {
         try {
             const tokenVerificada = await jwt.verify(token, process.env.JWT_SECRET as string || 'default_secret'); // Isso retorna o payload do jwt.sign()

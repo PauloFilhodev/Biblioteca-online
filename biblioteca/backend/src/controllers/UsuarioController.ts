@@ -26,27 +26,36 @@ export class UsuarioController {
     {
         const usuario: CadastrarUsuario = req.body;
 
-        if (usuario.nome == null || usuario.email == null || usuario.senha == null || usuario.telefone == null || usuario.tipo == null) {
+        if (usuario.nome == null || usuario.email == null || usuario.senha == null || usuario.telefone == null) {
             return res.status(400).json({
                 message: "Dados inválidos"
             })
         }
 
         const result = await UsuarioService.cadastrarUsuario(usuario);
+        
 
         if (!result.sucesso)
         {
             switch (result.erro) {
                 case UsuarioErro.ERRO_BANCO:
                     return res.status(500).json({
+                        code: "ERRO_BANCO",
                         message: "Ocorreu um erro no servidor."
                     })
-                case UsuarioErro.JA_EXISTE:
+                case UsuarioErro.EMAIL_EXISTENTE:
                     return res.status(409).json({
+                        code: "EMAIL_CADASTRADO",
                         message: "Este e-mail já está cadastrado."
+                    })
+                case UsuarioErro.TELEFONE_EXISTENTE:
+                    return res.status(409).json({
+                        code: "TELEFONE_CADASTRADO",
+                        message: "Este telefone já está cadastrado."
                     })
                 default:
                     return res.status(500).json({
+                        code: "ERRO_BANCO",
                         message: "Erro interno."
                     })
             }

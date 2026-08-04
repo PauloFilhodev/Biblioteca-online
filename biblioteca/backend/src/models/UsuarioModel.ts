@@ -18,9 +18,15 @@ export class UsuarioModel {
         return rows[0]; 
     }
 
+    static async buscarPorTelefone(telefone: string): Promise<RowDataPacket>
+    {
+        const [ rows ] = await pool.query<RowDataPacket[]>('SELECT * FROM usuarios WHERE telefone = ?', [telefone]);
+        return rows[0];
+    }
+
     static async cadastrarUsuario(usuario: Usuario): Promise<ResultSetHeader>
     {
-        const [ result ] = await pool.query<ResultSetHeader>('INSERT INTO usuarios (nome, email, senha_hash, telefone, tipo) VALUES (?, ?, ?, ?, ?)', [usuario.nome, usuario.email, usuario.senha_hash, usuario.telefone, usuario.tipo]);
+        const [ result ] = await pool.query<ResultSetHeader>('INSERT INTO usuarios (nome, email, senha_hash, telefone, tipo) VALUES (?, ?, ?, ?, ?)', [usuario.nome, usuario.email, usuario.senha_hash, usuario.telefone, 'cliente']); // Rota pública sempre gerando um usuario do tipo 'cliente'
 
         return result;
     }

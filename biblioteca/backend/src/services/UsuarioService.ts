@@ -19,12 +19,21 @@ export class UsuarioService {
     static async cadastrarUsuario(usuario: CadastrarUsuario): Promise<ServiceResult<ResultSetHeader>>
     {
         const usuarioExistente = await UsuarioModel.buscarPorEmail(usuario.email);
+        const telefoneExistente = await UsuarioModel.buscarPorTelefone(usuario.telefone);
 
         if (usuarioExistente)
         {
             return {
                 sucesso: false,
-                erro: UsuarioErro.JA_EXISTE
+                erro: UsuarioErro.EMAIL_EXISTENTE
+            }
+        }
+
+        if (telefoneExistente)
+        {
+            return {
+                sucesso: false,
+                erro: UsuarioErro.TELEFONE_EXISTENTE
             }
         }
 

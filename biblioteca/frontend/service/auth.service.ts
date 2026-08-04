@@ -8,3 +8,9 @@ export async function login(data: LoginData) {
 export async function registerUser(data: RegisterData) {
     return api.post('/usuarios', data);
 }
+
+export async function me() {
+    return api.get('/me', {
+        withCredentials: true
+    });
+}
