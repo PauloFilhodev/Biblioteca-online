@@ -26,9 +26,4 @@ export class AuthService {
 
         return token;
     }
-
-    static async authenticate (token: string)
-    {
-        
-    }
 }

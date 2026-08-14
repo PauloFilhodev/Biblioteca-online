@@ -27,7 +27,7 @@ export default function LoginForm() {
         try {
             await login(form);
 
-            router.replace('/dashboard');
+            router.replace('/bibliotecario');
         } catch (error)
         {
             if (axios.isAxiosError(error))

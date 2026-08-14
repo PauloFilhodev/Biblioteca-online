@@ -10,7 +10,7 @@ export async function registerUser(data: RegisterData) {
 }
 
 export async function me() {
-    return api.get('/me', {
+    return api.get('auth/me', {
         withCredentials: true
     });
 }
