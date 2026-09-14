@@ -1,9 +1,9 @@
 
-export default function DashboardPage ()
+export default function AdminDashboard ()
 {
     return (
         <div className="">
-            <h1>Dashboard inicial</h1>
+            <h1>Dashboard do administrador</h1>
         </div>
     );
 }

@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { LoginData, loginSchema } from "@/schemas/auth.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { login } from "@/service/auth.service";
+import { login, me } from "@/service/auth.service";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 
@@ -27,7 +27,18 @@ export default function LoginForm() {
         try {
             await login(form);
 
-            router.replace('/bibliotecario');
+            const user = await me();
+
+            if (user.data.usuario.tipo == 'bibliotecario')
+            {
+                router.replace('/bibliotecario');
+            }
+
+            if (user.data.usuario.tipo == 'cliente')
+            {
+                router.replace('/cliente')
+            }
+
         } catch (error)
         {
             if (axios.isAxiosError(error))
